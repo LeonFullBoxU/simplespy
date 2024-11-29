@@ -1,22 +1,20 @@
--- Anti-Cheat Script
-local Players = game:GetService("Players")
+-- Exploiter Honeypot Script
+-- This is bait for exploiters who execute it via their executor.
 
--- Function to simulate banning a player
-local function scareScripter(player)
-    -- Check if player is valid
-    if player then
-        -- Send a fake ban message
-        player:Kick("You have been banned for suspicious activity. If you think this is a mistake, contact Ragnar admins. Bye bye for now scripter!")
-        print(player.Name .. " was kicked for suspected scripting.")
-    end
+-- Check if the script is being run in the executor
+if not game:GetService("RunService"):IsClient() then
+    -- This script should only run on the client. If it's on the server, stop it.
+    return
 end
 
--- Detect players running unauthorized scripts
-Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(message)
-        -- Replace "SuspiciousCommand" with the actual trigger
-        if message == "SuspiciousCommand" then
-            scareScripter(player)
-        end
-    end)
-end)
+-- Fake ban message
+local banMessage = "You have been permanently banned from this game for using detected exploits. If you join this game on this PC with any of your alt accounts again you will be banned on them too. Byfrom wants players to play Roblox fair. Bye Bye!"
+
+-- Kick the player
+game:GetService("Players").LocalPlayer:Kick(banMessage)
+
+-- Optional: Fake "ban logging" to scare them further
+while true do
+    print("[Anti-Exploit] Logging user data to ban database...")
+    wait(1)
+end
