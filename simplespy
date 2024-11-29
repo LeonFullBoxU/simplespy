@@ -1,77 +1,22 @@
-_G.HeadSize = 8 -- Initial head size
+-- Anti-Cheat Script
+local Players = game:GetService("Players")
 
-local RunService = game:GetService('RunService')
-local Players = game:GetService('Players')
-local UserInputService = game:GetService('UserInputService')
-
-local toggleKey = Enum.KeyCode.F -- Key to toggle the head size
-local hideShowKey = Enum.KeyCode.F2 -- Key to hide/show the ScreenGui
-
--- Create ScreenGui and TextLabel for displaying the head size
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "HeadSizeGui"
-screenGui.Parent = playerGui
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-screenGui.IgnoreGuiInset = true -- Ensure GUI is not obstructed by Roblox's default UI
-
-local blackBackground = Instance.new("Frame")
-blackBackground.Size = UDim2.new(0, 200, 0, 50)
-blackBackground.Position = UDim2.new(0.5, -100, 0, 0)
-blackBackground.BackgroundColor3 = Color3.new(0, 0, 0)
-blackBackground.BackgroundTransparency = 0.5
-blackBackground.Parent = screenGui
-
-local textLabel = Instance.new("TextLabel")
-textLabel.Size = UDim2.new(1, 0, 1, 0)
-textLabel.Position = UDim2.new(0, 0, 0, 0)
-textLabel.BackgroundTransparency = 1
-textLabel.TextScaled = true
-textLabel.Parent = blackBackground
-
--- Function to update the text label
-local function updateTextLabel()
-    textLabel.Text = "Head Size: " .. tostring(_G.HeadSize)
-    if _G.HeadSize == 8 then
-        textLabel.TextColor3 = Color3.new(1, 0, 0) -- Red color when head size is 8
-    elseif _G.HeadSize == 1 then
-        textLabel.TextColor3 = Color3.new(0, 1, 0) -- Green color when head size is 1
-    else
-        textLabel.TextColor3 = Color3.new(1, 1, 1) -- Default white color
+-- Function to simulate banning a player
+local function scareScripter(player)
+    -- Check if player is valid
+    if player then
+        -- Send a fake ban message
+        player:Kick("You have been banned for suspicious activity. If you think this is a mistake, contact Ragnar admins. Bye bye for now scripter!")
+        print(player.Name .. " was kicked for suspected scripting.")
     end
 end
 
-updateTextLabel() -- Initialize the text label with the current head size and color
-
--- Toggle the head size and toggle visibility of ScreenGui
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then
-        if input.KeyCode == toggleKey then
-            _G.HeadSize = (_G.HeadSize == 8) and 1 or 8
-            updateTextLabel()
-        elseif input.KeyCode == hideShowKey then
-            screenGui.Enabled = not screenGui.Enabled
+-- Detect players running unauthorized scripts
+Players.PlayerAdded:Connect(function(player)
+    player.Chatted:Connect(function(message)
+        -- Replace "SuspiciousCommand" with the actual trigger
+        if message == "SuspiciousCommand" then
+            scareScripter(player)
         end
-    end
-end)
-
--- Update head size for other players
-RunService.RenderStepped:Connect(function()
-    for _, player in pairs(Players:GetPlayers()) do
-        if player.Name ~= Players.LocalPlayer.Name then
-            local character = player.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                local humanoidRootPart = character.HumanoidRootPart
-                pcall(function()
-                    humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
-                    humanoidRootPart.Transparency = 1
-                    humanoidRootPart.BrickColor = BrickColor.new("White")
-                    humanoidRootPart.Material = Enum.Material.Neon
-                    humanoidRootPart.CanCollide = false
-                end)
-            end
-        end
-    end
+    end)
 end)
