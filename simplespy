@@ -9,7 +9,13 @@ local UITextSizeConstraint = Instance.new("UITextSizeConstraint")
 
 -- Parent GUI to PlayerGui
 ScreenGui.Name = "CustomGUI" -- Ensure the ScreenGui has a unique name
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local success, err = pcall(function()
+    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+end)
+if not success then
+    warn("Error parenting ScreenGui: ", err)
+    return
+end
 
 -- Frame properties
 Frame.Parent = ScreenGui
