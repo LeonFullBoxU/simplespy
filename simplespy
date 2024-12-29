@@ -113,17 +113,17 @@ Button.MouseButton1Click:Connect(function()
     task.wait(2) -- Wait 2 seconds to ensure everything is ready
 
     -- 5. Fire jdskhfsIIIllliiIIIdchgdIiIIIlIlIli multiple times for the local player
+    -- 4. No additional delay; directly fire jdskhfsIIIllliiIIIdchgdIiIIIlIlIli
     local damageEvent = game:GetService("ReplicatedStorage"):FindFirstChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
     if damageEvent and localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid") then
-        for i = 1, 5 do -- Fire the event 5 times to ensure it works
+        for i = 1, 20 do -- Increased to 20 for more calls
             local args = {
                 [1] = localPlayer.Character.Humanoid,
                 [2] = 5
             }
             damageEvent:FireServer(unpack(args))
-            task.wait(0.01) -- Reduced delay between each call
+            task.wait() -- Set to minimal delay for spamming as fast as possible
         end
     else
         warn("Damage event or local player's humanoid not found.")
     end
-end)
