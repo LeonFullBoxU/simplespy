@@ -148,8 +148,16 @@ end)
 local tool = Instance.new("Tool")
 tool.Name = "TargetTool"
 tool.RequiresHandle = false
-tool.Parent = game.Players.LocalPlayer:WaitForChild("Backpack")
 
+-- Parent tool to the player's backpack in a safe manner
+local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
+if backpack then
+    tool.Parent = backpack
+else
+    warn("Backpack not found, tool cannot be added.")
+end
+
+-- Tool activation logic
 tool.Activated:Connect(function()
     local mouse = game.Players.LocalPlayer:GetMouse()
     local target = mouse.Target and mouse.Target.Parent
@@ -159,3 +167,4 @@ tool.Activated:Connect(function()
         warn("No valid player target found.")
     end
 end)
+
