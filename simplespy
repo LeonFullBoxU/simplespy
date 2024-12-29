@@ -89,6 +89,7 @@ Button.MouseButton1Click:Connect(function()
     -- 2. Fire CarryEvent
     local carryEvent = game:GetService("ReplicatedStorage").Events:FindFirstChild("CarryEvent")
     if carryEvent then
+        print("CarryEvent found, firing...")
         local args = {
             [1] = player,
             [2] = "request_accepted"
@@ -101,6 +102,7 @@ Button.MouseButton1Click:Connect(function()
     -- 3. Fire TitleEvent
     local titleEvent = game:GetService("ReplicatedStorage").Events:FindFirstChild("TitleEvent")
     if titleEvent then
+        print("TitleEvent found, firing...")
         local args = {
             [1] = "NoviceHunter"
         }
@@ -111,15 +113,22 @@ Button.MouseButton1Click:Connect(function()
 
     -- 4. No additional delay; directly fire jdskhfsIIIllliiIIIdchgdIiIIIlIlIli
     local damageEvent = game:GetService("ReplicatedStorage"):FindFirstChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
-    if damageEvent and localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid") then
+    if damageEvent then
+        print("Damage event found, firing rapidly...")
         for i = 1, 20 do -- Increased to 20 for more calls
-            local args = {
-                [1] = localPlayer.Character.Humanoid,
-                [2] = 5
-            }
-            damageEvent:FireServer(unpack(args))
+            local humanoid = localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                local args = {
+                    [1] = humanoid,
+                    [2] = 5
+                }
+                damageEvent:FireServer(unpack(args))
+            else
+                warn("Local player's humanoid not found.")
+                break
+            end
         end
     else
-        warn("Damage event or local player's humanoid not found.")
+        warn("Damage event not found.")
     end
 end)
