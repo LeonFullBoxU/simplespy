@@ -1,4 +1,97 @@
--- Create GUI
+-- ESP Functionality to show names above players
+local function createESP(player)
+    local character = player.Character
+    if character and not character:FindFirstChild("ESPName") then
+        local head = character:FindFirstChild("Head")
+        if head then
+            local billboardGui = Instance.new("BillboardGui", head)
+            billboardGui.Name = "ESPName"
+            billboardGui.Size = UDim2.new(0, 100, 0, 50)
+            billboardGui.StudsOffset = Vector3.new(0, 2, 0)
+            billboardGui.AlwaysOnTop = true
+
+            local textLabel = Instance.new("TextLabel", billboardGui)
+            textLabel.Size = UDim2.new(1, 0, 1, 0)
+            textLabel.Text = player.Name
+            textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+            textLabel.BackgroundTransparency = 1
+            textLabel.Font = Enum.Font.GothamBold
+            textLabel.TextScaled = true
+        end
+    end
+end
+
+-- Remove ESP when the player leaves
+game.Players.PlayerRemoving:Connect(function(player)
+    if player.Character then
+        local head = player.Character:FindFirstChild("Head")
+        if head and head:FindFirstChild("ESPName") then
+            head:FindFirstChild("ESPName"):Destroy()
+        end
+    end
+end)
+
+-- Create ESP for all current players
+for _, player in pairs(game.Players:GetPlayers()) do
+    createESP(player)
+end
+
+-- ESP for newly joined players
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        task.wait(1) -- Ensure character is loaded
+        createESP(player)
+    end)
+end)
+
+-- Function to perform actions on a player
+local function performActions(player)
+    local localPlayer = game.Players.LocalPlayer
+
+    -- 1. Teleport to the username
+    if localPlayer.Character and player.Character then
+        localPlayer.Character:SetPrimaryPartCFrame(player.Character.PrimaryPart.CFrame)
+    else
+        warn("Unable to teleport. Character not found.")
+    end
+
+    -- Add delay between teleport and events
+    task.wait(0.5)
+
+    -- 2. Fire CarryEvent
+    local carryEvent = game:GetService("ReplicatedStorage").Events:FindFirstChild("CarryEvent")
+    if carryEvent then
+        carryEvent:FireServer(player, "request_accepted")
+    else
+        warn("CarryEvent not found.")
+    end
+
+    -- 3. Fire TitleEvent
+    local titleEvent = game:GetService("ReplicatedStorage").Events:FindFirstChild("TitleEvent")
+    if titleEvent then
+        titleEvent:FireServer("NoviceHunter")
+    else
+        warn("TitleEvent not found.")
+    end
+
+    -- 4. Fire Damage Event
+    local damageEvent = game:GetService("ReplicatedStorage"):FindFirstChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
+    if damageEvent then
+        for i = 1, 20 do
+            local humanoid = localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                damageEvent:FireServer(humanoid, 5)
+            else
+                warn("Local player's humanoid not found.")
+                break
+            end
+        end
+    else
+        warn("Damage event not found.")
+    end
+end
+
+-- GUI Creation
 local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local TextBox = Instance.new("TextBox")
@@ -8,7 +101,7 @@ local UICornerButton = Instance.new("UICorner")
 local UITextSizeConstraint = Instance.new("UITextSizeConstraint")
 
 -- Parent GUI to PlayerGui
-ScreenGui.Name = "CustomGUI" -- Ensure the ScreenGui has a unique name
+ScreenGui.Name = "CustomGUI"
 local success, err = pcall(function()
     ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 end)
@@ -23,7 +116,7 @@ Frame.BackgroundColor3 = Color3.fromRGB(40, 44, 52)
 Frame.Size = UDim2.new(0, 350, 0, 200)
 Frame.Position = UDim2.new(0.5, -175, 0.5, -100)
 Frame.AnchorPoint = Vector2.new(0.5, 0.5)
-Frame.Visible = true -- Ensure the Frame is visible
+Frame.Visible = true
 
 -- Add rounded corners to Frame
 UICornerFrame.Parent = Frame
@@ -66,67 +159,6 @@ Button.MouseLeave:Connect(function()
     Button.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
 end)
 
--- Function to perform actions on a player
-local function performActions(player)
-    local localPlayer = game.Players.LocalPlayer
-
-    -- 1. Teleport to the username
-    if localPlayer.Character and player.Character then
-        localPlayer.Character:SetPrimaryPartCFrame(player.Character.PrimaryPart.CFrame)
-    else
-        warn("Unable to teleport. Character not found.")
-    end
-
-    -- Add delay between teleport and events
-    task.wait(0.5)
-
-    -- 2. Fire CarryEvent
-    local carryEvent = game:GetService("ReplicatedStorage").Events:FindFirstChild("CarryEvent")
-    if carryEvent then
-        print("CarryEvent found, firing...")
-        local args = {
-            [1] = player,
-            [2] = "request_accepted"
-        }
-        carryEvent:FireServer(unpack(args))
-    else
-        warn("CarryEvent not found.")
-    end
-
-    -- 3. Fire TitleEvent
-    local titleEvent = game:GetService("ReplicatedStorage").Events:FindFirstChild("TitleEvent")
-    if titleEvent then
-        print("TitleEvent found, firing...")
-        local args = {
-            [1] = "NoviceHunter"
-        }
-        titleEvent:FireServer(unpack(args))
-    else
-        warn("TitleEvent not found.")
-    end
-
-    -- 4. No additional delay; directly fire jdskhfsIIIllliiIIIdchgdIiIIIlIlIli
-    local damageEvent = game:GetService("ReplicatedStorage"):FindFirstChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
-    if damageEvent then
-        print("Damage event found, firing rapidly...")
-        for i = 1, 20 do -- Increased to 20 for more calls
-            local humanoid = localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid")
-            if humanoid then
-                local args = {
-                    [1] = humanoid,
-                    [2] = 5
-                }
-                damageEvent:FireServer(unpack(args))
-            else
-                warn("Local player's humanoid not found.")
-                break
-            end
-        end
-    else
-        warn("Damage event not found.")
-    end
-end
-
 -- Button functionality
 Button.MouseButton1Click:Connect(function()
     local username = TextBox.Text
@@ -144,27 +176,13 @@ Button.MouseButton1Click:Connect(function()
     performActions(player)
 end)
 
--- Tool functionality
-local tool = Instance.new("Tool")
-tool.Name = "TargetTool"
-tool.RequiresHandle = false
-
--- Parent tool to the player's backpack in a safe manner
-local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
-if backpack then
-    tool.Parent = backpack
-else
-    warn("Backpack not found, tool cannot be added.")
-end
-
--- Tool activation logic
-tool.Activated:Connect(function()
-    local mouse = game.Players.LocalPlayer:GetMouse()
-    local target = mouse.Target and mouse.Target.Parent
+-- Player click functionality
+local playerMouse = game.Players.LocalPlayer:GetMouse()
+playerMouse.Button1Down:Connect(function()
+    local target = playerMouse.Target and playerMouse.Target.Parent
     if target and game.Players:FindFirstChild(target.Name) then
         performActions(game.Players[target.Name])
     else
         warn("No valid player target found.")
     end
 end)
-
