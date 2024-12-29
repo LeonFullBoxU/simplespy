@@ -79,9 +79,9 @@ Button.MouseButton1Click:Connect(function()
     local localPlayer = game.Players.LocalPlayer
     local targetPlayer = nil
 
-    -- Find a player whose username matches the input
+    -- Match a player whose username matches the input
     for _, player in pairs(game.Players:GetPlayers()) do
-        if string.find(string.lower(player.Name), string.lower(username)) then
+        if string.match(string.lower(player.Name), string.lower(username)) then
             targetPlayer = player
             break
         end
@@ -101,51 +101,28 @@ Button.MouseButton1Click:Connect(function()
             warn("Unable to teleport. Character not found.")
         end
 
-        -- Add delay between teleport and events
-        task.wait(0.5)
-
-        -- 2. Fire CarryEvent
+        -- Fire CarryEvent
         local carryEvent = game:GetService("ReplicatedStorage").Events:FindFirstChild("CarryEvent")
         if carryEvent then
-            print("CarryEvent found, firing...")
-            local args = {
-                [1] = targetPlayer,
-                [2] = "request_accepted"
-            }
-            carryEvent:FireServer(unpack(args))
+            carryEvent:FireServer(targetPlayer, "request_accepted")
         else
             warn("CarryEvent not found.")
         end
 
-        -- Add delay before firing the next events
-        task.wait(0.5)
-
-        -- 3. Fire TitleEvent
+        -- Fire TitleEvent
         local titleEvent = game:GetService("ReplicatedStorage").Events:FindFirstChild("TitleEvent")
         if titleEvent then
-            print("TitleEvent found, firing...")
-            local args = {
-                [1] = "NoviceHunter"
-            }
-            titleEvent:FireServer(unpack(args))
+            titleEvent:FireServer("NoviceHunter")
         else
             warn("TitleEvent not found.")
         end
 
-        -- Add a short delay before firing the damage event
-        task.wait(0.3)
-
-        -- 4. Fire jdskhfsIIIllliiIIIdchgdIiIIIlIlIli
+        -- Fire jdskhfsIIIllliiIIIdchgdIiIIIlIlIli
         local damageEvent = game:GetService("ReplicatedStorage"):FindFirstChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
         if damageEvent then
-            print("Damage event found, firing...")
             local humanoid = localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid")
             if humanoid then
-                local args = {
-                    [1] = humanoid,
-                    [2] = 5
-                }
-                damageEvent:FireServer(unpack(args))
+                damageEvent:FireServer(humanoid, 5)
             else
                 warn("Local player's humanoid not found.")
             end
@@ -154,12 +131,8 @@ Button.MouseButton1Click:Connect(function()
         end
     end
 
-    -- Fire events once
+    -- Fire events twice quickly
     fireEvents()
-
-    -- Add a delay before firing all the events a second time
-    task.wait(1) -- 1-second delay before repeating all events
-
-    -- Fire events a second time
+    task.wait(0.2) -- Reduced delay between repetitions
     fireEvents()
 end)
