@@ -7,63 +7,65 @@ local UICornerFrame = Instance.new("UICorner")
 local UICornerButton = Instance.new("UICorner")
 local UITextSizeConstraint = Instance.new("UITextSizeConstraint")
 
--- Parent GUI to PlayerGui
-ScreenGui.Name = "CustomGUI" -- Ensure the ScreenGui has a unique name
+-- Parent GUI to CoreGui
+ScreenGui.Name = "CustomCoreGUI"
 local success, err = pcall(function()
-    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    ScreenGui.Parent = game:GetService("CoreGui")
 end)
 if not success then
     warn("Error parenting ScreenGui: ", err)
     return
 end
 
--- Frame properties
+-- Frame properties (Main Window)
 Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(40, 44, 52)
-Frame.Size = UDim2.new(0, 350, 0, 200)
-Frame.Position = UDim2.new(0.5, -175, 0.5, -100)
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20) -- Clean black
+Frame.Size = UDim2.new(0, 250, 0, 150) -- Smaller size
+Frame.Position = UDim2.new(0.5, -125, 0.5, -75)
 Frame.AnchorPoint = Vector2.new(0.5, 0.5)
 Frame.Visible = true -- Ensure the Frame is visible
+Frame.Active = true
+Frame.Draggable = true -- Enable dragging
 
 -- Add rounded corners to Frame
 UICornerFrame.Parent = Frame
-UICornerFrame.CornerRadius = UDim.new(0.05, 0)
+UICornerFrame.CornerRadius = UDim.new(0.1, 0)
 
--- TextBox properties
+-- TextBox properties (Input)
 TextBox.Parent = Frame
-TextBox.Size = UDim2.new(0.8, 0, 0.2, 0)
-TextBox.Position = UDim2.new(0.1, 0, 0.25, 0)
+TextBox.Size = UDim2.new(0.9, 0, 0.25, 0)
+TextBox.Position = UDim2.new(0.05, 0, 0.2, 0)
 TextBox.PlaceholderText = "Enter Username"
 TextBox.Text = ""
-TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextBox.BackgroundColor3 = Color3.fromRGB(50, 54, 62)
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+TextBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Slightly lighter black
 TextBox.Font = Enum.Font.Gotham
-TextBox.TextSize = 16
+TextBox.TextSize = 14
 
 UITextSizeConstraint.Parent = TextBox
-UITextSizeConstraint.MaxTextSize = 18
+UITextSizeConstraint.MaxTextSize = 14
 
--- Button properties
+-- Button properties (Execute)
 Button.Parent = Frame
-Button.Size = UDim2.new(0.8, 0, 0.2, 0)
-Button.Position = UDim2.new(0.1, 0, 0.6, 0)
+Button.Size = UDim2.new(0.9, 0, 0.25, 0)
+Button.Position = UDim2.new(0.05, 0, 0.6, 0)
 Button.Text = "Execute"
-Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-Button.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray
 Button.Font = Enum.Font.Gotham
-Button.TextSize = 16
+Button.TextSize = 14
 
 -- Add rounded corners to Button
 UICornerButton.Parent = Button
-UICornerButton.CornerRadius = UDim.new(0.05, 0)
+UICornerButton.CornerRadius = UDim.new(0.1, 0)
 
 -- Button hover effect
 Button.MouseEnter:Connect(function()
-    Button.BackgroundColor3 = Color3.fromRGB(100, 150, 200)
+    Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70) -- Lighter gray
 end)
 
 Button.MouseLeave:Connect(function()
-    Button.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Original dark gray
 end)
 
 -- Button functionality
