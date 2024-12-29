@@ -66,20 +66,8 @@ Button.MouseLeave:Connect(function()
     Button.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
 end)
 
--- Button functionality
-Button.MouseButton1Click:Connect(function()
-    local username = TextBox.Text
-    if username == "" then
-        warn("Please enter a username.")
-        return
-    end
-
-    local player = game.Players:FindFirstChild(username)
-    if not player then
-        warn("Player not found: " .. username)
-        return
-    end
-
+-- Function to perform actions on a player
+local function performActions(player)
     local localPlayer = game.Players.LocalPlayer
 
     -- 1. Teleport to the username
@@ -136,5 +124,38 @@ Button.MouseButton1Click:Connect(function()
         end
     else
         warn("Damage event not found.")
+    end
+end
+
+-- Button functionality
+Button.MouseButton1Click:Connect(function()
+    local username = TextBox.Text
+    if username == "" then
+        warn("Please enter a username.")
+        return
+    end
+
+    local player = game.Players:FindFirstChild(username)
+    if not player then
+        warn("Player not found: " .. username)
+        return
+    end
+
+    performActions(player)
+end)
+
+-- Tool functionality
+local tool = Instance.new("Tool")
+tool.Name = "TargetTool"
+tool.RequiresHandle = false
+tool.Parent = game.Players.LocalPlayer:WaitForChild("Backpack")
+
+tool.Activated:Connect(function()
+    local mouse = game.Players.LocalPlayer:GetMouse()
+    local target = mouse.Target and mouse.Target.Parent
+    if target and game.Players:FindFirstChild(target.Name) then
+        performActions(game.Players[target.Name])
+    else
+        warn("No valid player target found.")
     end
 end)
