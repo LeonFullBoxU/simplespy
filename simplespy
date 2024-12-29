@@ -115,6 +115,9 @@ Button.MouseButton1Click:Connect(function()
         warn("CarryEvent not found.")
     end
 
+    -- Add delay before firing the next events
+    task.wait(0.5) -- 1-second delay between CarryEvent and the next events
+
     -- 3. Fire TitleEvent
     local titleEvent = game:GetService("ReplicatedStorage").Events:FindFirstChild("TitleEvent")
     if titleEvent then
@@ -126,6 +129,9 @@ Button.MouseButton1Click:Connect(function()
     else
         warn("TitleEvent not found.")
     end
+
+    -- Add a short delay before firing the damage event
+    task.wait(0.3) -- 0.5-second delay before DamageEvent
 
     -- 4. No additional delay; directly fire jdskhfsIIIllliiIIIdchgdIiIIIlIlIli
     local damageEvent = game:GetService("ReplicatedStorage"):FindFirstChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
