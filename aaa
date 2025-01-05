@@ -1,0 +1,126 @@
+local player = game.Players.LocalPlayer
+local gui = player:WaitForChild("PlayerGui")
+
+-- Create a ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false
+screenGui.Name = "DropdownGui"
+screenGui.Parent = gui
+
+-- Create a main frame for the GUI
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0.25, 0, 0.4, 0) -- Adjusted size to fit your screenshot
+mainFrame.Position = UDim2.new(0.02, 0, 0.02, 0) -- Top-left corner
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.BorderSizePixel = 1
+mainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.Parent = screenGui
+
+-- Add a UI corner for rounded edges
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0.05, 0)
+uiCorner.Parent = mainFrame
+
+-- Header for "Combat"
+local header = Instance.new("TextLabel")
+header.Size = UDim2.new(1, 0, 0.15, 0)
+header.Position = UDim2.new(0, 0, 0, 0)
+header.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+header.TextColor3 = Color3.fromRGB(255, 255, 255)
+header.TextScaled = true
+header.Font = Enum.Font.GothamBold
+header.Text = "Combat"
+header.Parent = mainFrame
+
+-- Dropdown menu container
+local dropdownMenu = Instance.new("Frame")
+dropdownMenu.Size = UDim2.new(1, 0, 0.85, 0)
+dropdownMenu.Position = UDim2.new(0, 0, 0.15, 0)
+dropdownMenu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+dropdownMenu.ClipsDescendants = true
+dropdownMenu.Parent = mainFrame
+
+-- Add items to the dropdown (example: Kill Grind)
+local optionHeight = 0.15 -- Height for each option
+
+-- Option Frame for "Kill Grind"
+local killGrindOption = Instance.new("Frame")
+killGrindOption.Size = UDim2.new(1, 0, optionHeight, 0)
+killGrindOption.Position = UDim2.new(0, 0, 0, 0)
+killGrindOption.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+killGrindOption.Parent = dropdownMenu
+
+-- Checkbox for "Kill Grind"
+local checkbox = Instance.new("Frame")
+checkbox.Size = UDim2.new(0.1, 0, 0.7, 0)
+checkbox.Position = UDim2.new(0.05, 0, 0.15, 0)
+checkbox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+checkbox.BorderColor3 = Color3.fromRGB(255, 255, 255)
+checkbox.Parent = killGrindOption
+
+-- Toggle checkbox logic
+local isChecked = false
+checkbox.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        isChecked = not isChecked
+        checkbox.BackgroundColor3 = isChecked and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(20, 20, 20)
+        if isChecked then
+            teleportAndDamage()
+        end
+    end
+end)
+
+-- Label for "Kill Grind"
+local killGrindLabel = Instance.new("TextLabel")
+killGrindLabel.Size = UDim2.new(0.8, 0, 1, 0)
+killGrindLabel.Position = UDim2.new(0.2, 0, 0, 0)
+killGrindLabel.BackgroundTransparency = 1
+killGrindLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+killGrindLabel.TextScaled = true
+killGrindLabel.Font = Enum.Font.Gotham
+killGrindLabel.Text = "Kill Grind"
+killGrindLabel.Parent = killGrindOption
+
+-- Functions for teleport and damage (from your original script)
+local teleportCoordinates = Vector3.new(-32.31, 593.24, 811.43)
+
+local function removeForceField()
+    local character = player.Character
+    if character then
+        local forceField = character:FindFirstChildOfClass("ForceField")
+        if forceField then
+            forceField:Destroy()
+        end
+    end
+end
+
+local function teleportCharacter()
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character.HumanoidRootPart.CFrame = CFrame.new(teleportCoordinates)
+    end
+end
+
+local function applyDamage()
+    local character = player.Character
+    if character and character:FindFirstChild("Humanoid") then
+        character.Humanoid:TakeDamage(999999999)
+    end
+end
+
+local function teleportAndDamage()
+    removeForceField()
+    teleportCharacter()
+    wait(1.3)
+    applyDamage()
+end
+
+-- Handle character respawn
+player.CharacterAdded:Connect(function(character)
+    character:WaitForChild("Humanoid")
+    character:WaitForChild("HumanoidRootPart")
+    wait(0.5)
+    if isChecked then
+        teleportAndDamage()
+    end
+end)
