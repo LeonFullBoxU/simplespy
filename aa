@@ -1,0 +1,155 @@
+local player = game.Players.LocalPlayer
+local gui = player:WaitForChild("PlayerGui")
+
+-- Create a ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false
+screenGui.Name = "CoordinatesGui"
+screenGui.Parent = gui
+
+-- Create a draggable frame for the GUI
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0.3, 0, 0.3, 0) -- Smaller size
+mainFrame.Position = UDim2.new(0.35, 0, 0.35, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+-- Add a UI corner for rounded edges
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0.05, 0)
+uiCorner.Parent = mainFrame
+
+-- Title Label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0.9, 0, 0.15, 0)
+titleLabel.Position = UDim2.new(0.05, 0, 0.02, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.Text = "Kill Grind Script"
+titleLabel.Parent = mainFrame
+
+-- Coordinate label
+local coordinateLabel = Instance.new("TextLabel")
+coordinateLabel.Size = UDim2.new(0.9, 0, 0.15, 0)
+coordinateLabel.Position = UDim2.new(0.05, 0, 0.2, 0)
+coordinateLabel.BackgroundTransparency = 0.2
+coordinateLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+coordinateLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+coordinateLabel.TextScaled = true
+coordinateLabel.Font = Enum.Font.GothamBold
+coordinateLabel.Text = "Coordinates: Loading..."
+coordinateLabel.Parent = mainFrame
+
+-- Countdown label
+local countdownLabel = Instance.new("TextLabel")
+countdownLabel.Size = UDim2.new(0.9, 0, 0.15, 0)
+countdownLabel.Position = UDim2.new(0.05, 0, 0.38, 0)
+countdownLabel.BackgroundTransparency = 0.2
+countdownLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+countdownLabel.TextColor3 = Color3.fromRGB(200, 200, 0)
+countdownLabel.TextScaled = true
+countdownLabel.Font = Enum.Font.GothamBold
+countdownLabel.Text = "Countdown: --"
+countdownLabel.Parent = mainFrame
+
+-- TextBox for teleport time
+local teleportTimeBox = Instance.new("TextBox")
+teleportTimeBox.Size = UDim2.new(0.9, 0, 0.15, 0)
+teleportTimeBox.Position = UDim2.new(0.05, 0, 0.56, 0)
+teleportTimeBox.BackgroundColor3 = Color3.fromRGB(60, 30, 90)
+teleportTimeBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+teleportTimeBox.PlaceholderText = "Set Teleport Time"
+teleportTimeBox.TextScaled = true
+teleportTimeBox.Font = Enum.Font.GothamBold
+teleportTimeBox.Text = ""
+teleportTimeBox.Parent = mainFrame
+
+-- Teleportation toggle button
+local teleportToggleButton = Instance.new("TextButton")
+teleportToggleButton.Size = UDim2.new(0.9, 0, 0.15, 0)
+teleportToggleButton.Position = UDim2.new(0.05, 0, 0.74, 0)
+teleportToggleButton.BackgroundColor3 = Color3.fromRGB(120, 50, 255)
+teleportToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+teleportToggleButton.TextScaled = true
+teleportToggleButton.Font = Enum.Font.GothamBold
+teleportToggleButton.Text = "Teleport: OFF"
+teleportToggleButton.Parent = mainFrame
+
+-- Credits Label
+local creditsLabel = Instance.new("TextLabel")
+creditsLabel.Size = UDim2.new(0.9, 0, 0.1, 0)
+creditsLabel.Position = UDim2.new(0.05, 0, 0.9, 0)
+creditsLabel.BackgroundTransparency = 1
+creditsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+creditsLabel.TextScaled = true
+creditsLabel.Font = Enum.Font.GothamBold
+creditsLabel.Text = "Credits: leftarmout"
+creditsLabel.Parent = mainFrame
+
+-- Variables
+local teleportCoordinates = Vector3.new(-32.31, 593.24, 811.43)
+local teleporting = false
+local countdownTime = 10
+
+-- Teleport function
+local function teleportCharacter()
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character.HumanoidRootPart.CFrame = CFrame.new(teleportCoordinates)
+    end
+end
+
+-- Start countdown
+local function startCountdown()
+    for i = countdownTime, 0, -1 do
+        countdownLabel.Text = "Countdown: " .. i
+        wait(1)
+    end
+    teleportCharacter()
+    countdownLabel.Text = "Countdown: Teleporting!"
+end
+
+-- Toggle teleport
+teleportToggleButton.MouseButton1Click:Connect(function()
+    teleporting = not teleporting
+    teleportToggleButton.Text = teleporting and "Teleport: ON" or "Teleport: OFF"
+    teleportToggleButton.BackgroundColor3 = teleporting and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+end)
+
+-- Update countdown time from TextBox
+teleportTimeBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local input = tonumber(teleportTimeBox.Text)
+        if input and input > 0 then
+            countdownTime = input
+            teleportTimeBox.Text = ""
+            countdownLabel.Text = "Countdown set to " .. countdownTime .. " seconds"
+        else
+            teleportTimeBox.Text = ""
+            countdownLabel.Text = "Invalid time entered!"
+        end
+    end
+end)
+
+-- Handle character respawn
+player.CharacterAdded:Connect(function(character)
+    character:WaitForChild("Humanoid")
+    character:WaitForChild("HumanoidRootPart")
+    if teleporting then
+        startCountdown()
+    end
+end)
+
+-- Update coordinates
+game:GetService("RunService").RenderStepped:Connect(function()
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local position = character.HumanoidRootPart.Position
+        coordinateLabel.Text = string.format("Coordinates: X: %.2f, Y: %.2f, Z: %.2f", position.X, position.Y, position.Z)
+    end
+end)
