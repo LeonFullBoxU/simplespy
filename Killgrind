@@ -1,0 +1,176 @@
+local player = game.Players.LocalPlayer
+local gui = player:WaitForChild("PlayerGui")
+
+-- Create a ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false
+screenGui.Name = "CustomGui"
+screenGui.Parent = gui
+
+-- Create the main frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0.2, 0, 0.3, 0) -- Adjusted size
+mainFrame.Position = UDim2.new(0.02, 0, 0.02, 0) -- Top-left corner
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.BorderSizePixel = 1
+mainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.Parent = screenGui
+
+-- Add a UI corner for rounded edges
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0.1, 0)
+uiCorner.Parent = mainFrame
+
+-- Title Label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0.2, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Custom Features"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.Parent = mainFrame
+
+-- Kill Grind Checkbox
+local killGrindFrame = Instance.new("Frame")
+killGrindFrame.Size = UDim2.new(0.9, 0, 0.2, 0)
+killGrindFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
+killGrindFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+killGrindFrame.BorderSizePixel = 1
+killGrindFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+killGrindFrame.Parent = mainFrame
+
+local killGrindLabel = Instance.new("TextLabel")
+killGrindLabel.Size = UDim2.new(0.8, 0, 1, 0)
+killGrindLabel.Position = UDim2.new(0.1, 0, 0, 0)
+killGrindLabel.BackgroundTransparency = 1
+killGrindLabel.Text = "Kill Grind"
+killGrindLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+killGrindLabel.TextScaled = true
+killGrindLabel.Font = Enum.Font.Gotham
+killGrindLabel.Parent = killGrindFrame
+
+local killGrindCheckbox = Instance.new("TextButton")
+killGrindCheckbox.Size = UDim2.new(0.2, 0, 1, 0)
+killGrindCheckbox.Position = UDim2.new(0.8, 0, 0, 0)
+killGrindCheckbox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+killGrindCheckbox.Text = "OFF"
+killGrindCheckbox.Font = Enum.Font.GothamBold
+killGrindCheckbox.TextColor3 = Color3.fromRGB(255, 255, 255)
+killGrindCheckbox.TextScaled = true
+killGrindCheckbox.Parent = killGrindFrame
+
+-- Anti-AFK Checkbox
+local antiAfkFrame = Instance.new("Frame")
+antiAfkFrame.Size = UDim2.new(0.9, 0, 0.2, 0)
+antiAfkFrame.Position = UDim2.new(0.05, 0, 0.6, 0)
+antiAfkFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+antiAfkFrame.BorderSizePixel = 1
+antiAfkFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+antiAfkFrame.Parent = mainFrame
+
+local antiAfkLabel = Instance.new("TextLabel")
+antiAfkLabel.Size = UDim2.new(0.8, 0, 1, 0)
+antiAfkLabel.Position = UDim2.new(0.1, 0, 0, 0)
+antiAfkLabel.BackgroundTransparency = 1
+antiAfkLabel.Text = "Anti-AFK"
+antiAfkLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+antiAfkLabel.TextScaled = true
+antiAfkLabel.Font = Enum.Font.Gotham
+antiAfkLabel.Parent = antiAfkFrame
+
+local antiAfkCheckbox = Instance.new("TextButton")
+antiAfkCheckbox.Size = UDim2.new(0.2, 0, 1, 0)
+antiAfkCheckbox.Position = UDim2.new(0.8, 0, 0, 0)
+antiAfkCheckbox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+antiAfkCheckbox.Text = "OFF"
+antiAfkCheckbox.Font = Enum.Font.GothamBold
+antiAfkCheckbox.TextColor3 = Color3.fromRGB(255, 255, 255)
+antiAfkCheckbox.TextScaled = true
+antiAfkCheckbox.Parent = antiAfkFrame
+
+-- Variables
+local teleportCoordinates = Vector3.new(-32.31, 593.24, 811.43)
+local isKillGrindActive = false
+local isAntiAfkActive = false
+local heartbeatConnection
+
+-- Functions for Kill Grind
+local function removeForceField()
+    local character = player.Character
+    if character then
+        local forceField = character:FindFirstChildOfClass("ForceField")
+        if forceField then
+            forceField:Destroy()
+        end
+    end
+end
+
+local function teleportCharacter()
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character.HumanoidRootPart.CFrame = CFrame.new(teleportCoordinates)
+    end
+end
+
+local function applyDamage()
+    local character = player.Character
+    if character and character:FindFirstChild("Humanoid") then
+        character.Humanoid:TakeDamage(999999999)
+    end
+end
+
+local function activateKillGrind()
+    if isKillGrindActive then
+        removeForceField()
+        teleportCharacter()
+        wait(1.3)
+        applyDamage()
+    end
+end
+
+-- Functions for Anti-AFK
+local function activateAntiAfk()
+    if not isAntiAfkActive then
+        return
+    end
+    heartbeatConnection = game:GetService("Players").LocalPlayer.Idled:Connect(function()
+        local vu = game:GetService("VirtualUser")
+        vu:CaptureController()
+        vu:ClickButton2(Vector2.new())
+    end)
+end
+
+local function deactivateAntiAfk()
+    if heartbeatConnection then
+        heartbeatConnection:Disconnect()
+        heartbeatConnection = nil
+    end
+end
+
+-- Toggle Buttons
+killGrindCheckbox.MouseButton1Click:Connect(function()
+    isKillGrindActive = not isKillGrindActive
+    killGrindCheckbox.Text = isKillGrindActive and "ON" or "OFF"
+    if isKillGrindActive then
+        activateKillGrind()
+    end
+end)
+
+antiAfkCheckbox.MouseButton1Click:Connect(function()
+    isAntiAfkActive = not isAntiAfkActive
+    antiAfkCheckbox.Text = isAntiAfkActive and "ON" or "OFF"
+    if isAntiAfkActive then
+        activateAntiAfk()
+    else
+        deactivateAntiAfk()
+    end
+end)
+
+-- Handle Character Respawn
+player.CharacterAdded:Connect(function(character)
+    wait(0.5)
+    if isKillGrindActive then
+        activateKillGrind()
+    end
+end)
