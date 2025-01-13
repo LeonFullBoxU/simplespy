@@ -1,0 +1,137 @@
+-- Create the GUI elements
+local CoreGui = game:GetService("CoreGui")
+local ScreenGui = Instance.new("ScreenGui")
+local ToggleButton = Instance.new("TextButton")
+local DestroyButton = Instance.new("TextButton")
+
+-- Ensure the GUI persists across deaths
+ScreenGui.ResetOnSpawn = false
+
+-- Parent the GUI to CoreGui
+ScreenGui.Parent = CoreGui
+
+-- Parent buttons to the ScreenGui
+ToggleButton.Parent = ScreenGui
+DestroyButton.Parent = ScreenGui
+
+-- Set up the toggle button's appearance and position
+ToggleButton.Size = UDim2.new(0, 200, 0, 50)
+ToggleButton.Position = UDim2.new(0, 20, 0.4, 0)
+ToggleButton.Text = "Start Kill Grind"
+ToggleButton.BackgroundColor3 = Color3.new(0.2, 0.8, 0.2)
+
+DestroyButton.Size = UDim2.new(0, 200, 0, 50)
+DestroyButton.Position = UDim2.new(0, 20, 0.5, 0)
+DestroyButton.Text = "Destroy GUI"
+DestroyButton.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
+
+local isRunning = false
+local lastPosition = nil
+local noMoveTime = 0
+
+local function restartKillGrindLoop()
+    isRunning = false
+    wait(0.5)
+    isRunning = true
+    coroutine.wrap(killGrindLoop)()
+end
+
+local function killGrindLoop()
+    local player = game.Players.LocalPlayer
+    local spawnArgs = {
+        [1] = "monkey",
+        [2] = "monkey19",
+        [3] = "skatemonkeyAnim"
+    }
+
+    while isRunning do
+        -- Ensure player character is initialized
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local currentPosition = player.Character.HumanoidRootPart.Position
+            if lastPosition then
+                if (currentPosition - lastPosition).Magnitude < 0.1 then
+                    noMoveTime = noMoveTime + wait(0.1)
+                    if noMoveTime >= 2 then
+                        warn("Character not moving for 2 seconds. Restarting loop...")
+                        restartKillGrindLoop()
+                        return
+                    end
+                else
+                    noMoveTime = 0 -- Reset the timeout counter
+                end
+            end
+            lastPosition = currentPosition
+        else
+            warn("HumanoidRootPart not found! Restarting loop...")
+            restartKillGrindLoop()
+            return
+        end
+
+        -- Step 1: Fire the SpawnEvent
+        local spawnEvent = game:GetService("ReplicatedStorage").Events:FindFirstChild("SpawnEvent")
+        if spawnEvent then
+            spawnEvent:FireServer(unpack(spawnArgs))
+        else
+            warn("SpawnEvent not found!")
+        end
+        wait(0.5)
+
+        -- Step 2: Remove ForceField
+        if player.Character and player.Character:FindFirstChild("ForceField") then
+            player.Character.ForceField:Destroy()
+        end
+
+        -- Step 3: Teleport the player
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(-85.69, 593.24, 813.09)
+        end
+        wait(0.05)
+
+        -- Step 4: Fire the remote
+        local remote = game:GetService("ReplicatedStorage"):FindFirstChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
+        if remote then
+            for i = 1, 5 do
+                remote:FireServer(player.Character.Humanoid, 16)
+                wait(0.1)
+            end
+        else
+            warn("Remote 'jdskhfsIIIllliiIIIdchgdIiIIIlIlIli' not found! Restarting loop...")
+            restartKillGrindLoop()
+            return
+        end
+
+        -- Step 5: Apply damage to the player
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid:TakeDamage(99999999)
+        else
+            warn("Humanoid not found! Restarting loop...")
+            restartKillGrindLoop()
+            return
+        end
+        wait(0.3)
+    end
+end
+
+local function onCharacterAdded()
+    if isRunning then
+        restartKillGrindLoop()
+    end
+end
+
+ToggleButton.MouseButton1Click:Connect(function()
+    isRunning = not isRunning
+    if isRunning then
+        ToggleButton.Text = "Stop Kill Grind"
+        ToggleButton.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
+        coroutine.wrap(killGrindLoop)()
+        game.Players.LocalPlayer.CharacterAdded:Connect(onCharacterAdded)
+    else
+        ToggleButton.Text = "Start Kill Grind"
+        ToggleButton.BackgroundColor3 = Color3.new(0.2, 0.8, 0.2)
+    end
+end)
+
+DestroyButton.MouseButton1Click:Connect(function()
+    isRunning = false -- Ensure the loop stops
+    ScreenGui:Destroy()
+end)
