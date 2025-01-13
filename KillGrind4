@@ -51,7 +51,7 @@ local function killGrindLoop()
             if lastPosition then
                 if (currentPosition - lastPosition).Magnitude < 0.1 then
                     noMoveTime = noMoveTime + wait(0.1)
-                    if noMoveTime >= 1.6 then
+                    if noMoveTime >= 2 then
                         warn("Character not moving for 2 seconds. Restarting loop...")
                         restartKillGrindLoop()
                         return
@@ -74,7 +74,7 @@ local function killGrindLoop()
         else
             warn("SpawnEvent not found!")
         end
-        wait(0.4)
+        wait(0.5)
 
         -- Step 2: Remove ForceField
         if player.Character and player.Character:FindFirstChild("ForceField") then
@@ -92,7 +92,7 @@ local function killGrindLoop()
         if remote then
             for i = 1, 5 do
                 remote:FireServer(player.Character.Humanoid, 16)
-                wait(0.025)
+                wait(0.1)
             end
         else
             warn("Remote 'jdskhfsIIIllliiIIIdchgdIiIIIlIlIli' not found! Restarting loop...")
@@ -108,7 +108,7 @@ local function killGrindLoop()
             restartKillGrindLoop()
             return
         end
-        wait(0.2)
+        wait(0.3)
     end
 end
 
